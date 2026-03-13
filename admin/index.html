@@ -747,8 +747,8 @@ async function loadAll() {
       ghGet('data/catalog.json'),
       ghGet('data/articles.json')
     ]);
-    catalog = JSON.parse(atob(catFile.content.replace(/\n/g, '')));
-    articles = JSON.parse(atob(artFile.content.replace(/\n/g, '')));
+    catalog = JSON.parse(decodeBase64UTF8(catFile.content));
+    articles = JSON.parse(decodeBase64UTF8(artFile.content));
     catalog.sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
     articles.sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
     renderCatalog();
@@ -1156,6 +1156,13 @@ async function testConnection() {
 // ══════════════════════════════════════════
 // UTILS
 // ══════════════════════════════════════════
+function decodeBase64UTF8(b64) {
+  const binary = atob(b64.replace(/\n/g, ''));
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return new TextDecoder('utf-8').decode(bytes);
+}
+
 function esc(str) {
   if (!str) return '';
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
