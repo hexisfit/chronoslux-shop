@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="../favicon.png">
+<title>CHRONOS LUX — Адмін-панель</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Manrope:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #C9A96E;
+    --gold-light: #E8D5A8;
+    --gold-dark: #9A7B4F;
+    --black: #0A0A0A;
+    --dark: #111111;
+    --card: #171717;
+    --card2: #1E1E1E;
+    --white: #F5F0E8;
+    --dim: #B8B0A2;
+    --border: rgba(201,169,110,0.15);
+    --green: #4CAF50;
+    --red: #e05830;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Manrope', sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+
+  /* ── LOGIN ── */
+  .login-screen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(ellipse at 30% 50%, rgba(201,169,110,0.06) 0%, transparent 70%);
+  }
+
+  .login-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 3rem;
+    width: 360px;
+    text-align: center;
+  }
+
+  .login-box h1 {
+    font-family: 'Playfair Display', serif;
+    color: var(--gold);
+    font-size: 1.5rem;
+    letter-spacing: 0.15em;
+    margin-bottom: 0.4rem;
+  }
+
+  .login-box p { color: var(--dim); font-size: 0.8rem; margin-bottom: 2rem; }
+
+  .login-box input {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    background: #1a1a1a;
+    border: 1px solid var(--border);
+    color: var(--white);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    outline: none;
+    font-family: 'Manrope', sans-serif;
+  }
+
+  .login-box input:focus { border-color: var(--gold); }
+
+  .login-box button {
+    width: 100%;
+    padding: 0.8rem;
+    background: var(--gold);
+    color: var(--black);
+    border: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    font-family: 'Manrope', sans-serif;
+    transition: background 0.2s;
+  }
+
+  .login-box button:hover { background: var(--gold-light); }
+  .error-msg { color: var(--red); font-size: 0.8rem; margin-bottom: 1rem; }
+
+  /* ── LAYOUT ── */
+  #app { display: none; }
+
+  .admin-nav {
+    background: rgba(17,17,17,0.97);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+    padding: 1rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .admin-nav h1 {
+    font-family: 'Playfair Display', serif;
+    color: var(--gold);
+    font-size: 1.1rem;
+    letter-spacing: 0.15em;
+    font-weight: 700;
+  }
+
+  .nav-actions { display: flex; gap: 1.5rem; align-items: center; }
+  .nav-actions a, .nav-actions button {
+    color: var(--dim);
+    text-decoration: none;
+    font-size: 0.8rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: 'Manrope', sans-serif;
+    transition: color 0.2s;
+  }
+  .nav-actions a:hover, .nav-actions button:hover { color: var(--gold); }
+
+  .tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    background: rgba(17,17,17,0.9);
+    padding: 0 2rem;
+  }
+
+  .tabs button {
+    padding: 1rem 1.5rem;
+    color: var(--dim);
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: 'Manrope', sans-serif;
+    transition: all 0.2s;
+  }
+
+  .tabs button:hover { color: var(--white); }
+  .tabs button.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+  .content { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+
+  /* ── CARDS ── */
+  .form-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  .form-card h2 {
+    font-family: 'Playfair Display', serif;
+    color: var(--gold);
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+    font-weight: 700;
+  }
+
+  /* ── FORM ── */
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+  .form-row.full { grid-template-columns: 1fr; }
+  .form-row.three { grid-template-columns: 1fr 1fr 1fr; }
+
+  .form-group { display: flex; flex-direction: column; gap: 0.3rem; }
+
+  .form-group label {
+    color: var(--dim);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 500;
+  }
+
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    background: #1a1a1a;
+    border: 1px solid var(--border);
+    color: var(--white);
+    padding: 0.7rem 0.8rem;
+    font-size: 0.9rem;
+    outline: none;
+    font-family: 'Manrope', sans-serif;
+    transition: border-color 0.2s;
+  }
+
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus { border-color: var(--gold); }
+
+  .form-group textarea { resize: vertical; min-height: 80px; }
+  .form-group select { cursor: pointer; }
+
+  .form-group input[type="file"] {
+    padding: 0.5rem;
+    font-size: 0.8rem;
+    cursor: pointer;
+  }
+
+  .help-text { color: var(--dim); font-size: 0.72rem; font-style: italic; }
+
+  .checkbox-row { display: flex; gap: 1.5rem; margin-top: 0.4rem; }
+  .checkbox-label { display: flex; align-items: center; gap: 0.4rem; color: var(--dim); font-size: 0.85rem; cursor: pointer; }
+  .checkbox-label input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--gold); cursor: pointer; }
+
+  .form-actions { display: flex; gap: 1rem; margin-top: 1.5rem; flex-wrap: wrap; }
+
+  /* ── BUTTONS ── */
+  .btn {
+    padding: 0.7rem 1.5rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border: none;
+    cursor: pointer;
+    font-family: 'Manrope', sans-serif;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .btn-gold { background: var(--gold); color: var(--black); }
+  .btn-gold:hover { background: var(--gold-light); }
+  .btn-gold:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .btn-outline { background: none; border: 1px solid var(--border); color: var(--dim); }
+  .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+
+  .btn-red { background: rgba(224,88,48,0.15); border: 1px solid rgba(224,88,48,0.3); color: var(--red); }
+  .btn-red:hover { background: rgba(224,88,48,0.25); }
+
+  .btn-green { background: rgba(76,175,80,0.15); border: 1px solid rgba(76,175,80,0.3); color: var(--green); }
+  .btn-green:hover { background: rgba(76,175,80,0.25); }
+
+  .btn-sm { padding: 0.35rem 0.7rem; font-size: 0.68rem; }
+
+  /* ── TABLE ── */
+  .data-table { width: 100%; border-collapse: collapse; }
+
+  .data-table th {
+    background: rgba(201,169,110,0.07);
+    color: var(--gold);
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.8rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .data-table td {
+    padding: 0.8rem 1rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+
+  .data-table tr:hover td { background: rgba(201,169,110,0.03); }
+
+  .thumb {
+    width: 52px;
+    height: 52px;
+    object-fit: cover;
+    border: 1px solid var(--border);
+    display: block;
+  }
+
+  .emoji-thumb {
+    width: 52px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--card2);
+    border: 1px solid var(--border);
+    font-size: 1.5rem;
+  }
+
+  /* ── BADGES ── */
+  .badge {
+    display: inline-block;
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    padding: 0.18rem 0.55rem;
+    margin: 2px 2px 0 0;
+  }
+
+  .badge-sold { background: rgba(224,88,48,0.18); color: var(--red); border: 1px solid rgba(224,88,48,0.3); }
+  .badge-new { background: rgba(76,175,80,0.18); color: var(--green); border: 1px solid rgba(76,175,80,0.3); }
+  .badge-available { background: rgba(201,169,110,0.15); color: var(--gold); border: 1px solid rgba(201,169,110,0.3); }
+  .badge-condition { background: rgba(100,149,237,0.12); color: #7BA7E8; border: 1px solid rgba(100,149,237,0.25); }
+  .badge-yes { background: rgba(76,175,80,0.1); color: var(--green); border: 1px solid rgba(76,175,80,0.2); }
+  .badge-no { background: rgba(224,88,48,0.1); color: var(--red); border: 1px solid rgba(224,88,48,0.15); }
+
+  .actions-cell { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background: var(--card);
+    border: 1px solid var(--gold);
+    color: var(--white);
+    padding: 1rem 1.5rem;
+    font-size: 0.85rem;
+    z-index: 9999;
+    animation: slideIn 0.3s ease;
+    max-width: 320px;
+  }
+
+  .toast.error { border-color: var(--red); color: var(--red); }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── LOADING ── */
+  .loading {
+    text-align: center;
+    padding: 3rem;
+    color: var(--dim);
+    font-size: 0.9rem;
+  }
+
+  /* ── SETTINGS TAB ── */
+  .settings-info {
+    background: rgba(201,169,110,0.05);
+    border: 1px solid var(--border);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.85rem;
+    color: var(--dim);
+    line-height: 1.8;
+  }
+
+  .settings-info strong { color: var(--white); }
+  .settings-info code {
+    background: #1a1a1a;
+    padding: 0.15rem 0.4rem;
+    font-family: monospace;
+    font-size: 0.8rem;
+    color: var(--gold);
+  }
+
+  .token-display {
+    font-family: monospace;
+    font-size: 0.75rem;
+    color: var(--dim);
+    word-break: break-all;
+  }
+
+  /* ── PHOTO PREVIEW ── */
+  .photo-preview {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border: 1px solid var(--border);
+    margin-top: 0.5rem;
+    display: none;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    .form-row, .form-row.three { grid-template-columns: 1fr; }
+    .content { padding: 1rem; }
+    .tabs { overflow-x: auto; padding: 0 1rem; }
+    .tabs button { white-space: nowrap; padding: 0.8rem 1rem; }
+    .data-table { font-size: 0.8rem; }
+    .data-table td, .data-table th { padding: 0.5rem; }
+    .admin-nav { padding: 1rem; }
+    .admin-nav h1 { font-size: 0.9rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══ LOGIN SCREEN ══ -->
+<div id="loginScreen" class="login-screen">
+  <div class="login-box">
+    <h1>CHRONOS LUX</h1>
+    <p>Адмін-панель</p>
+    <div id="loginError" class="error-msg" style="display:none;"></div>
+    <input type="text" id="loginUser" placeholder="Логін" autocomplete="username">
+    <input type="password" id="loginPass" placeholder="Пароль" autocomplete="current-password">
+    <button onclick="doLogin()">Увійти</button>
+  </div>
+</div>
+
+<!-- ══ MAIN APP ══ -->
+<div id="app">
+
+  <!-- NAV -->
+  <div class="admin-nav">
+    <h1>CHRONOS LUX — АДМІН</h1>
+    <div class="nav-actions">
+      <a href="../index.html" target="_blank">👁 Переглянути сайт</a>
+      <button onclick="doLogout()">Вийти ↗</button>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="active" onclick="switchTab('catalog', this)">⌚ Каталог</button>
+    <button onclick="switchTab('articles', this)">📰 Журнал</button>
+    <button onclick="switchTab('settings', this)">⚙️ Налаштування</button>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- ══ CATALOG TAB ══ -->
+    <div id="tab-catalog">
+
+      <div class="form-card">
+        <h2 id="watchFormTitle">➕ Додати годинник</h2>
+        <input type="hidden" id="watch_id">
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Бренд *</label>
+            <input type="text" id="f_brand" placeholder="Rolex">
+          </div>
+          <div class="form-group">
+            <label>Назва моделі *</label>
+            <input type="text" id="f_name" placeholder="Submariner Date">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Референс</label>
+            <input type="text" id="f_ref" placeholder="Ref. 126610LN • 41mm">
+          </div>
+          <div class="form-group">
+            <label>Ціна *</label>
+            <input type="text" id="f_price" placeholder="$14 500">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Характеристики</label>
+            <input type="text" id="f_specs" placeholder="Сталь Oystersteel, Автоматичний, 300м WR">
+            <span class="help-text">Через кому</span>
+          </div>
+          <div class="form-group">
+            <label>Telegram повідомлення</label>
+            <input type="text" id="f_telegram" placeholder="Вітаю! Цікавить Rolex Submariner">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Значок</label>
+            <select id="f_badge">
+              <option value="">Без значка</option>
+              <option value="new">Новинка</option>
+              <option value="available">В наявності</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Текст значка</label>
+            <input type="text" id="f_badge_text" placeholder="Новинка / В наявності">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Стан годинника</label>
+            <select id="f_condition">
+              <option value="">Не вказано</option>
+              <option value="new">Новий</option>
+              <option value="unworn">Неношений</option>
+              <option value="used">Має сліди використання</option>
+              <option value="repair">Потребує ремонту</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Комплектація</label>
+            <div class="checkbox-row">
+              <label class="checkbox-label">
+                <input type="checkbox" id="f_docs"> <span>📋 Документи</span>
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" id="f_box"> <span>📦 Бокс</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Фото годинника</label>
+            <input type="file" id="f_image" accept="image/*" onchange="previewImg(this, 'f_preview')">
+            <img id="f_preview" class="photo-preview">
+            <span class="help-text">JPG/PNG/WebP — завантажиться у photos/</span>
+          </div>
+          <div class="form-group">
+            <label>Порядок (число)</label>
+            <input type="number" id="f_order" value="999" min="1">
+            <span class="help-text">1 = перший у списку</span>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn btn-gold" id="saveWatchBtn" onclick="saveWatch()">💾 Зберегти годинник</button>
+          <button class="btn btn-outline" onclick="clearWatchForm()">✕ Скинути</button>
+        </div>
+      </div>
+
+      <!-- Catalog table -->
+      <div class="form-card">
+        <h2 id="catalogCount">Каталог годинників</h2>
+        <div id="catalogTable"><div class="loading">Завантаження...</div></div>
+      </div>
+
+    </div>
+
+    <!-- ══ ARTICLES TAB ══ -->
+    <div id="tab-articles" style="display:none;">
+
+      <div class="form-card">
+        <h2 id="articleFormTitle">➕ Додати статтю</h2>
+        <input type="hidden" id="a_id">
+
+        <div class="form-row full">
+          <div class="form-group">
+            <label>Заголовок *</label>
+            <input type="text" id="a_title" placeholder="Назва статті">
+          </div>
+        </div>
+
+        <div class="form-row full">
+          <div class="form-group">
+            <label>Короткий опис *</label>
+            <textarea id="a_excerpt" placeholder="1-2 речення для картки на головній"></textarea>
+          </div>
+        </div>
+
+        <div class="form-row three">
+          <div class="form-group">
+            <label>Категорія *</label>
+            <input type="text" id="a_tag" placeholder="Огляд / Гід покупця / Інвестиції">
+          </div>
+          <div class="form-group">
+            <label>Дата *</label>
+            <input type="text" id="a_date" placeholder="Березень 2026">
+          </div>
+          <div class="form-group">
+            <label>Порядок</label>
+            <input type="number" id="a_order" value="999" min="1">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Файл статті *</label>
+            <input type="text" id="a_file" placeholder="royal-oak-guide.html">
+            <span class="help-text">Назва HTML файлу в папці articles/</span>
+          </div>
+          <div class="form-group">
+            <label>Фото обкладинки</label>
+            <input type="file" id="a_image" accept="image/*" onchange="previewImg(this, 'a_preview')">
+            <img id="a_preview" class="photo-preview">
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn btn-gold" id="saveArticleBtn" onclick="saveArticle()">💾 Зберегти статтю</button>
+          <button class="btn btn-outline" onclick="clearArticleForm()">✕ Скинути</button>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <h2 id="articlesCount">Статті журналу</h2>
+        <div id="articlesTable"><div class="loading">Завантаження...</div></div>
+      </div>
+
+    </div>
+
+    <!-- ══ SETTINGS TAB ══ -->
+    <div id="tab-settings" style="display:none;">
+      <div class="form-card">
+        <h2>⚙️ Налаштування підключення</h2>
+
+        <div class="settings-info">
+          Адмін-панель використовує <strong>GitHub API</strong> для збереження змін напряму в репозиторій.<br>
+          Токен зберігається тільки в браузері (localStorage) і нікуди не передається.<br><br>
+          <strong>Репозиторій:</strong> <code id="showRepo">—</code><br>
+          <strong>Токен:</strong> <span id="showToken" class="token-display">—</span>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>GitHub репозиторій</label>
+            <input type="text" id="s_repo" placeholder="hexisfit/chronoslux-shop">
+            <span class="help-text">username/repository-name</span>
+          </div>
+          <div class="form-group">
+            <label>GitHub токен (Personal Access Token)</label>
+            <input type="password" id="s_token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+            <span class="help-text">Settings → Developer settings → Personal access tokens → repo scope</span>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn btn-gold" onclick="saveSettings()">💾 Зберегти налаштування</button>
+          <button class="btn btn-outline" onclick="testConnection()">🔌 Перевірити підключення</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+// CONFIG
+// ══════════════════════════════════════════
+const ADMIN_USER = 'admin';
+const ADMIN_PASS = 'ChronosLux2026!';
+
+let REPO = localStorage.getItem('cl_repo') || 'hexisfit/chronoslux-shop';
+let TOKEN = localStorage.getItem('cl_token') || '';
+
+let catalog = [];
+let articles = [];
+
+const condLabels = { new: 'Новий', unworn: 'Неношений', used: 'Сліди використання', repair: 'Потребує ремонту' };
+
+// ══════════════════════════════════════════
+// AUTH
+// ══════════════════════════════════════════
+function doLogin() {
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value;
+  if (u === ADMIN_USER && p === ADMIN_PASS) {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    loadSettings();
+    loadAll();
+  } else {
+    const err = document.getElementById('loginError');
+    err.textContent = 'Невірний логін або пароль';
+    err.style.display = 'block';
+  }
+}
+
+document.getElementById('loginPass').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});
+
+function doLogout() {
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+}
+
+// ══════════════════════════════════════════
+// TABS
+// ══════════════════════════════════════════
+function switchTab(name, btn) {
+  document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  ['catalog', 'articles', 'settings'].forEach(t => {
+    document.getElementById('tab-' + t).style.display = t === name ? 'block' : 'none';
+  });
+}
+
+// ══════════════════════════════════════════
+// GITHUB API
+// ══════════════════════════════════════════
+async function ghGet(path) {
+  const r = await fetch(`https://api.github.com/repos/${REPO}/contents/${path}`, {
+    headers: { Authorization: `token ${TOKEN}`, Accept: 'application/vnd.github.v3+json' }
+  });
+  if (!r.ok) throw new Error(`GET ${path}: ${r.status}`);
+  return r.json();
+}
+
+async function ghPut(path, content, sha, message) {
+  const body = { message, content: btoa(unescape(encodeURIComponent(content))), sha };
+  const r = await fetch(`https://api.github.com/repos/${REPO}/contents/${path}`, {
+    method: 'PUT',
+    headers: {
+      Authorization: `token ${TOKEN}`,
+      Accept: 'application/vnd.github.v3+json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  });
+  if (!r.ok) {
+    const err = await r.json();
+    throw new Error(err.message || `PUT ${path}: ${r.status}`);
+  }
+  return r.json();
+}
+
+async function ghPutBinary(path, base64content, sha, message) {
+  const body = { message, content: base64content };
+  if (sha) body.sha = sha;
+  const r = await fetch(`https://api.github.com/repos/${REPO}/contents/${path}`, {
+    method: 'PUT',
+    headers: {
+      Authorization: `token ${TOKEN}`,
+      Accept: 'application/vnd.github.v3+json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  });
+  if (!r.ok) {
+    const err = await r.json();
+    throw new Error(err.message || `PUT binary ${path}: ${r.status}`);
+  }
+  return r.json();
+}
+
+// ══════════════════════════════════════════
+// LOAD DATA
+// ══════════════════════════════════════════
+async function loadAll() {
+  if (!TOKEN) {
+    showToast('⚠️ Вкажіть GitHub токен у вкладці Налаштування', true);
+    return;
+  }
+  try {
+    const [catFile, artFile] = await Promise.all([
+      ghGet('data/catalog.json'),
+      ghGet('data/articles.json')
+    ]);
+    catalog = JSON.parse(atob(catFile.content.replace(/\n/g, '')));
+    articles = JSON.parse(atob(artFile.content.replace(/\n/g, '')));
+    catalog.sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
+    articles.sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
+    renderCatalog();
+    renderArticles();
+  } catch (e) {
+    showToast('❌ Помилка завантаження: ' + e.message, true);
+  }
+}
+
+// ══════════════════════════════════════════
+// RENDER CATALOG
+// ══════════════════════════════════════════
+function renderCatalog() {
+  document.getElementById('catalogCount').textContent = `Каталог годинників (${catalog.length})`;
+  if (!catalog.length) {
+    document.getElementById('catalogTable').innerHTML = '<div class="loading">Каталог порожній</div>';
+    return;
+  }
+  let html = `<table class="data-table">
+    <tr>
+      <th>Фото</th><th>#</th><th>Бренд / Модель</th><th>Ціна</th>
+      <th>Стан / Комплект</th><th>Статус</th><th>Дії</th>
+    </tr>`;
+  for (const w of catalog) {
+    const isSold = w.sold ?? false;
+    const imgHtml = w.image
+      ? `<img src="../photos/${w.image}" class="thumb" alt="">`
+      : `<div class="emoji-thumb">⌚</div>`;
+    const condHtml = w.condition ? `<span class="badge badge-condition">${condLabels[w.condition] || w.condition}</span><br>` : '';
+    const docsHtml = w.has_documents
+      ? `<span class="badge badge-yes">📋 Документи</span>`
+      : `<span class="badge badge-no">📋 Без документів</span>`;
+    const boxHtml = w.has_box
+      ? `<span class="badge badge-yes">📦 Бокс</span>`
+      : `<span class="badge badge-no">📦 Без боксу</span>`;
+    let statusHtml = '';
+    if (isSold) statusHtml = `<span class="badge badge-sold">ПРОДАНО</span>`;
+    else if (w.badge === 'new') statusHtml = `<span class="badge badge-new">${w.badge_text || 'Новинка'}</span>`;
+    else if (w.badge === 'available') statusHtml = `<span class="badge badge-available">${w.badge_text || 'В наявності'}</span>`;
+
+    html += `<tr>
+      <td>${imgHtml}</td>
+      <td>${w.order ?? '—'}</td>
+      <td>
+        <div style="color:var(--gold);font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;">${esc(w.brand)}</div>
+        <div style="font-weight:500;">${esc(w.name)}</div>
+        <div style="color:var(--dim);font-size:0.73rem;">${esc(w.ref)}</div>
+      </td>
+      <td style="color:var(--gold);font-weight:500;">${esc(w.price)}</td>
+      <td>${condHtml}${docsHtml} ${boxHtml}</td>
+      <td>${statusHtml}</td>
+      <td class="actions-cell">
+        <button class="btn btn-outline btn-sm" onclick="editWatch(${w.id})">✏️</button>
+        <button class="btn ${isSold ? 'btn-green' : 'btn-red'} btn-sm" onclick="toggleSold(${w.id})">
+          ${isSold ? '✅ Доступний' : '🏷 Продано'}
+        </button>
+        <button class="btn btn-red btn-sm" onclick="deleteWatch(${w.id})">🗑</button>
+      </td>
+    </tr>`;
+  }
+  html += '</table>';
+  document.getElementById('catalogTable').innerHTML = html;
+}
+
+// ══════════════════════════════════════════
+// RENDER ARTICLES
+// ══════════════════════════════════════════
+function renderArticles() {
+  document.getElementById('articlesCount').textContent = `Статті журналу (${articles.length})`;
+  if (!articles.length) {
+    document.getElementById('articlesTable').innerHTML = '<div class="loading">Статей немає</div>';
+    return;
+  }
+  let html = `<table class="data-table">
+    <tr><th>Фото</th><th>#</th><th>Заголовок</th><th>Тег</th><th>Файл</th><th>Дії</th></tr>`;
+  for (const a of articles) {
+    const imgHtml = a.image
+      ? `<img src="../photos/${a.image}" class="thumb" alt="">`
+      : `<div class="emoji-thumb">📝</div>`;
+    html += `<tr>
+      <td>${imgHtml}</td>
+      <td>${a.order ?? '—'}</td>
+      <td>
+        <div style="font-weight:500;">${esc(a.title)}</div>
+        <div style="color:var(--dim);font-size:0.73rem;">${esc(a.excerpt?.substring(0, 80))}...</div>
+      </td>
+      <td><span class="badge badge-available">${esc(a.tag)}</span></td>
+      <td style="color:var(--dim);font-size:0.73rem;">${esc(a.file)}</td>
+      <td class="actions-cell">
+        <button class="btn btn-outline btn-sm" onclick="editArticle(${a.id})">✏️</button>
+        <button class="btn btn-red btn-sm" onclick="deleteArticle(${a.id})">🗑</button>
+      </td>
+    </tr>`;
+  }
+  html += '</table>';
+  document.getElementById('articlesTable').innerHTML = html;
+}
+
+// ══════════════════════════════════════════
+// SAVE JSON TO GITHUB
+// ══════════════════════════════════════════
+async function saveJsonFile(filename, data, message) {
+  const file = await ghGet(`data/${filename}`);
+  const content = JSON.stringify(data, null, 2);
+  await ghPut(`data/${filename}`, content, file.sha, message);
+}
+
+// ══════════════════════════════════════════
+// UPLOAD IMAGE
+// ══════════════════════════════════════════
+async function uploadImage(fileInput, prefix) {
+  if (!fileInput.files || !fileInput.files[0]) return '';
+  const file = fileInput.files[0];
+  const ext = file.name.split('.').pop().toLowerCase();
+  if (!['jpg', 'jpeg', 'png', 'webp'].includes(ext)) return '';
+
+  const cleanPrefix = prefix.toLowerCase().replace(/[^a-z0-9\-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+  const filename = cleanPrefix + '.' + ext;
+  const path = `photos/${filename}`;
+
+  const base64 = await fileToBase64(file);
+
+  // Check if file exists to get SHA
+  let sha = null;
+  try {
+    const existing = await ghGet(path);
+    sha = existing.sha;
+  } catch(e) { /* new file */ }
+
+  await ghPutBinary(path, base64, sha, `Upload photo: ${filename}`);
+  return filename;
+}
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+// ══════════════════════════════════════════
+// WATCH CRUD
+// ══════════════════════════════════════════
+function nextId(arr) {
+  return Math.max(0, ...arr.map(i => i.id ?? 0)) + 1;
+}
+
+async function saveWatch() {
+  const brand = document.getElementById('f_brand').value.trim();
+  const name = document.getElementById('f_name').value.trim();
+  const price = document.getElementById('f_price').value.trim();
+  if (!brand || !name || !price) { showToast('Заповніть обов\'язкові поля', true); return; }
+
+  const btn = document.getElementById('saveWatchBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Збереження...';
+
+  try {
+    const id = parseInt(document.getElementById('watch_id').value) || 0;
+    const specs = document.getElementById('f_specs').value.split(',').map(s => s.trim()).filter(Boolean);
+
+    // Upload image if selected
+    let image = '';
+    const imgInput = document.getElementById('f_image');
+    if (imgInput.files && imgInput.files[0]) {
+      const prefix = (brand + '-' + name).toLowerCase().replace(/\s+/g, '-');
+      image = await uploadImage(imgInput, prefix);
+    }
+
+    const entry = {
+      id: id || nextId(catalog),
+      brand, name,
+      ref: document.getElementById('f_ref').value.trim(),
+      specs,
+      price,
+      badge: document.getElementById('f_badge').value,
+      badge_text: document.getElementById('f_badge_text').value.trim(),
+      condition: document.getElementById('f_condition').value,
+      has_documents: document.getElementById('f_docs').checked,
+      has_box: document.getElementById('f_box').checked,
+      sold: false,
+      image: '',
+      telegram_text: document.getElementById('f_telegram').value.trim(),
+      order: parseInt(document.getElementById('f_order').value) || 999
+    };
+
+    if (id) {
+      const idx = catalog.findIndex(w => w.id === id);
+      if (idx >= 0) {
+        entry.image = image || catalog[idx].image || '';
+        entry.sold = catalog[idx].sold;
+        catalog[idx] = entry;
+      }
+    } else {
+      entry.image = image;
+      catalog.push(entry);
+    }
+
+    catalog.sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
+    await saveJsonFile('catalog.json', catalog, `${id ? 'Update' : 'Add'} watch: ${brand} ${name}`);
+
+    showToast('✅ Годинник збережено!');
+    clearWatchForm();
+    renderCatalog();
+  } catch(e) {
+    showToast('❌ Помилка: ' + e.message, true);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '💾 Зберегти годинник';
+  }
+}
+
+function editWatch(id) {
+  const w = catalog.find(x => x.id === id);
+  if (!w) return;
+  document.getElementById('watch_id').value = w.id;
+  document.getElementById('f_brand').value = w.brand || '';
+  document.getElementById('f_name').value = w.name || '';
+  document.getElementById('f_ref').value = w.ref || '';
+  document.getElementById('f_price').value = w.price || '';
+  document.getElementById('f_specs').value = (w.specs || []).join(', ');
+  document.getElementById('f_telegram').value = w.telegram_text || '';
+  document.getElementById('f_badge').value = w.badge || '';
+  document.getElementById('f_badge_text').value = w.badge_text || '';
+  document.getElementById('f_condition').value = w.condition || '';
+  document.getElementById('f_docs').checked = !!w.has_documents;
+  document.getElementById('f_box').checked = !!w.has_box;
+  document.getElementById('f_order').value = w.order || 999;
+  document.getElementById('watchFormTitle').textContent = '✏️ Редагувати годинник';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function clearWatchForm() {
+  ['watch_id','f_brand','f_name','f_ref','f_price','f_specs','f_telegram','f_badge_text'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('f_badge').value = '';
+  document.getElementById('f_condition').value = '';
+  document.getElementById('f_docs').checked = false;
+  document.getElementById('f_box').checked = false;
+  document.getElementById('f_order').value = 999;
+  document.getElementById('f_image').value = '';
+  document.getElementById('f_preview').style.display = 'none';
+  document.getElementById('watchFormTitle').textContent = '➕ Додати годинник';
+}
+
+async function toggleSold(id) {
+  try {
+    const w = catalog.find(x => x.id === id);
+    if (!w) return;
+    w.sold = !w.sold;
+    await saveJsonFile('catalog.json', catalog, `Toggle sold: ${w.brand} ${w.name}`);
+    showToast('✅ Статус оновлено!');
+    renderCatalog();
+  } catch(e) {
+    showToast('❌ Помилка: ' + e.message, true);
+  }
+}
+
+async function deleteWatch(id) {
+  if (!confirm('Видалити годинник?')) return;
+  try {
+    catalog = catalog.filter(w => w.id !== id);
+    await saveJsonFile('catalog.json', catalog, `Delete watch id:${id}`);
+    showToast('✅ Годинник видалено!');
+    renderCatalog();
+  } catch(e) {
+    showToast('❌ Помилка: ' + e.message, true);
+  }
+}
+
+// ══════════════════════════════════════════
+// ARTICLE CRUD
+// ══════════════════════════════════════════
+async function saveArticle() {
+  const title = document.getElementById('a_title').value.trim();
+  const excerpt = document.getElementById('a_excerpt').value.trim();
+  const file = document.getElementById('a_file').value.trim();
+  if (!title || !excerpt || !file) { showToast('Заповніть обов\'язкові поля', true); return; }
+
+  const btn = document.getElementById('saveArticleBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Збереження...';
+
+  try {
+    const id = parseInt(document.getElementById('a_id').value) || 0;
+
+    let image = '';
+    const imgInput = document.getElementById('a_image');
+    if (imgInput.files && imgInput.files[0]) {
+      const prefix = file.replace('.html', '') + '-cover';
+      image = await uploadImage(imgInput, prefix);
+    }
+
+    const entry = {
+      id: id || nextId(articles),
+      title,
+      excerpt,
+      tag: document.getElementById('a_tag').value.trim(),
+      date: document.getElementById('a_date').value.trim(),
+      file,
+      image: '',
+      order: parseInt(document.getElementById('a_order').value) || 999
+    };
+
+    if (id) {
+      const idx = articles.findIndex(a => a.id === id);
+      if (idx >= 0) {
+        entry.image = image || articles[idx].image || '';
+        articles[idx] = entry;
+      }
+    } else {
+      entry.image = image;
+      articles.push(entry);
+    }
+
+    articles.sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
+    await saveJsonFile('articles.json', articles, `${id ? 'Update' : 'Add'} article: ${title}`);
+
+    showToast('✅ Статтю збережено!');
+    clearArticleForm();
+    renderArticles();
+  } catch(e) {
+    showToast('❌ Помилка: ' + e.message, true);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '💾 Зберегти статтю';
+  }
+}
+
+function editArticle(id) {
+  const a = articles.find(x => x.id === id);
+  if (!a) return;
+  document.getElementById('a_id').value = a.id;
+  document.getElementById('a_title').value = a.title || '';
+  document.getElementById('a_excerpt').value = a.excerpt || '';
+  document.getElementById('a_tag').value = a.tag || '';
+  document.getElementById('a_date').value = a.date || '';
+  document.getElementById('a_file').value = a.file || '';
+  document.getElementById('a_order').value = a.order || 999;
+  document.getElementById('articleFormTitle').textContent = '✏️ Редагувати статтю';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function clearArticleForm() {
+  ['a_id','a_title','a_excerpt','a_tag','a_date','a_file'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('a_order').value = 999;
+  document.getElementById('a_image').value = '';
+  document.getElementById('a_preview').style.display = 'none';
+  document.getElementById('articleFormTitle').textContent = '➕ Додати статтю';
+}
+
+async function deleteArticle(id) {
+  if (!confirm('Видалити статтю?')) return;
+  try {
+    articles = articles.filter(a => a.id !== id);
+    await saveJsonFile('articles.json', articles, `Delete article id:${id}`);
+    showToast('✅ Статтю видалено!');
+    renderArticles();
+  } catch(e) {
+    showToast('❌ Помилка: ' + e.message, true);
+  }
+}
+
+// ══════════════════════════════════════════
+// SETTINGS
+// ══════════════════════════════════════════
+function loadSettings() {
+  document.getElementById('s_repo').value = REPO;
+  document.getElementById('s_token').value = TOKEN;
+  document.getElementById('showRepo').textContent = REPO || '—';
+  document.getElementById('showToken').textContent = TOKEN ? TOKEN.substring(0, 8) + '••••••••••••••••' : '—';
+}
+
+function saveSettings() {
+  REPO = document.getElementById('s_repo').value.trim();
+  TOKEN = document.getElementById('s_token').value.trim();
+  localStorage.setItem('cl_repo', REPO);
+  localStorage.setItem('cl_token', TOKEN);
+  loadSettings();
+  showToast('✅ Налаштування збережено!');
+  loadAll();
+}
+
+async function testConnection() {
+  try {
+    const r = await fetch(`https://api.github.com/repos/${REPO}`, {
+      headers: { Authorization: `token ${TOKEN}` }
+    });
+    if (r.ok) {
+      const data = await r.json();
+      showToast(`✅ Підключено: ${data.full_name}`);
+    } else {
+      showToast(`❌ Помилка ${r.status}: перевірте токен і репозиторій`, true);
+    }
+  } catch(e) {
+    showToast('❌ Немає з\'єднання: ' + e.message, true);
+  }
+}
+
+// ══════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════
+function esc(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function previewImg(input, previewId) {
+  const preview = document.getElementById(previewId);
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      preview.src = e.target.result;
+      preview.style.display = 'block';
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+let toastTimer = null;
+function showToast(msg, isError = false) {
+  const existing = document.querySelector('.toast');
+  if (existing) existing.remove();
+  if (toastTimer) clearTimeout(toastTimer);
+
+  const toast = document.createElement('div');
+  toast.className = 'toast' + (isError ? ' error' : '');
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+  toastTimer = setTimeout(() => toast.remove(), 4000);
+}
+</script>
+
+</body>
+</html>
