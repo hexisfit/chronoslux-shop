@@ -1,0 +1,4 @@
+# Заборонити доступ до JSON файлів через браузер
+<Files "*.json">
+  Require all denied
+</Files>

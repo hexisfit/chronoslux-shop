@@ -1,0 +1,52 @@
+[
+    {
+        "id": 1,
+        "title": "Жіночий люксовий годинник: не прикраса, а заява про себе",
+        "excerpt": "Rolex Lady-Datejust, Cartier Tank, Patek Philippe Calatrava — які годинники обирають успішні жінки. Емоція, стиль, спадщина.",
+        "tag": "Стиль",
+        "date": "Березень 2026",
+        "file": "zhinochi-lyuksovi-godynnyky.html",
+        "image": "zhinochi-lyuksovi-godynnyky-cover.jpg",
+        "order": 1
+    },
+    {
+        "id": 2,
+        "title": "Audemars Piguet Royal Oak: революція 1972 року, яка змінила годинникову індустрію",
+        "excerpt": "Історія створення легендарного Royal Oak, актуальні моделі та ціни 2026, поради щодо покупки та інвестиційний потенціал.",
+        "tag": "Огляд",
+        "date": "Лютий 2026",
+        "file": "royal-oak-guide.html",
+        "image": "audemars-piguet-jumbo-15500-cover.jpeg",
+        "order": 2
+    },
+    {
+        "id": 3,
+        "title": "Топ-10 годинників для інвестицій у 2025–2026 році",
+        "excerpt": "Рейтинг моделей з найвищим потенціалом зростання — Rolex, Patek Philippe, Audemars Piguet та інші з аналізом цін та ліквідності.",
+        "tag": "Інвестиції",
+        "date": "Лютий 2026",
+        "file": "top-10-investment-watches-2025.html",
+        "image": "top-10-investment-watches-2025-cover.png",
+        "order": 3
+    },
+    {
+        "id": 4,
+        "title": "Rolex Submariner: повний гід для покупця у 2026 році",
+        "excerpt": "Все що потрібно знати перед покупкою найпопулярнішого дайверського годинника у світі — від історії моделі до актуальних цін.",
+        "tag": "Гід покупця",
+        "date": "Лютий 2026",
+        "file": "rolex-submariner-guide.html",
+        "image": "rolex-submariner-guide.jpeg",
+        "order": 4
+    },
+    {
+        "id": 5,
+        "title": "Patek Philippe Nautilus: чому цей годинник коштує понад $100,000",
+        "excerpt": "Історія легендарної моделі Джеральда Джента, що стала символом елегантності та одним з найбажаніших годинників у світі.",
+        "tag": "Огляд",
+        "date": "Лютий 2026",
+        "file": "nautilus-istoriya-legenda.html",
+        "image": "nautilus-istoriya-legenda-cover.jpg",
+        "order": 5
+    }
+]

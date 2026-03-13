@@ -1,0 +1,8 @@
+# CHRONOS LUX — robots.txt
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /data/
+
+# Sitemap
+Sitemap: https://chronoslux.shop/sitemap.xml
